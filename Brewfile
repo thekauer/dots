@@ -1,11 +1,7 @@
 # Brewfile generated from your list
 # Usage: brew bundle --file=./Brewfile
 
-# Taps
-tap "homebrew/cask-fonts"
-
 # Brew formulas
-brew "clop"
 brew "colima"
 brew "docker"
 brew "fzf"
@@ -24,6 +20,7 @@ brew "tmux"
 cask "alt-tab"
 cask "arc"
 cask "bitwarden"
+cask "clop"
 cask "ghostty"
 cask "hammerspoon"
 cask "hiddenbar"
