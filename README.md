@@ -1,0 +1,5 @@
+- [ ] add aliases from zsh
+- [ ] add linking to .config
+- [ ] setup file
+- [ ] dockerfile for testing
+- [ ] check real config dir for what is missing
