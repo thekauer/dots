@@ -34,6 +34,8 @@ fi
 
 print_info "Starting dotfiles installation..."
 
+[ ! -f ~/.zshrc ] && touch ~/.zshrc
+
 # Install Homebrew if not present
 if ! command -v brew &>/dev/null; then
   print_info "Installing Homebrew..."
