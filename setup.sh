@@ -10,6 +10,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 REPO_URL="https://github.com/thekauer/dots.git"
+NVIM_REPO_URL="https://github.com/thekauer/nvim.git"
 INSTALL_DIR="$HOME/.dotfiles"
 CONFIG_DIR="$HOME/.config"
 
@@ -121,6 +122,19 @@ for item in .tmux.conf .p10k.zsh; do
     create_symlink "$source_path" "$HOME/$item"
   fi
 done
+
+# 🧠 Install or update Neovim config
+print_info "Setting up Neovim configuration..."
+NVIM_DIR="$CONFIG_DIR/nvim"
+if [ -d "$NVIM_DIR" ]; then
+  print_info "Neovim config exists, pulling latest changes..."
+  cd "$NVIM_DIR"
+  git pull
+else
+  print_info "Cloning Neovim configuration..."
+  git clone "$NVIM_REPO_URL" "$NVIM_DIR"
+fi
+print_success "Neovim configuration ready at $NVIM_DIR"
 
 print_success "Dotfiles installation complete!"
 print_info "Please restart your terminal or run 'source ~/.zshrc' (or your shell config)"
