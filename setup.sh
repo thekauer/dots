@@ -60,9 +60,14 @@ print_success "Repository ready at $INSTALL_DIR"
 # Install packages from Brewfile first (before linking configs)
 if [ -f "$INSTALL_DIR/Brewfile" ]; then
   print_info "Installing packages from Brewfile..."
+  # prevent non zero brew exit code from stopping the entire script
+  set +e
   brew bundle --file="$INSTALL_DIR/Brewfile"
+  set -e
   print_success "Packages installed"
 fi
+
+echo "source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme" >>~/.zshrc
 
 # Create .config directory if it doesn't exist
 mkdir -p "$CONFIG_DIR"

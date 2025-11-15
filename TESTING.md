@@ -10,7 +10,7 @@ tart run tahoe-base
 
 3. `tart stop tahoe-base`
 
-4. `tart clone tahoe-base test1`
+4. `tart clone tahoe-base test1` you might need to add `--net-bridged=en0` to get internet connection
 
 5. `tart run test1`
 
