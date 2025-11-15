@@ -4,3 +4,6 @@
 - [ ] setup tmux plugin manager needs git clone
 - [ ] setup powerlevel 10k I need to add my config in here and also add it via brew, add step at the very end to run `p10k configure`
 - [ ] check real config dir for what is missing
+- [ ] ghostty config
+- [ ] add macos config
+- [ ] update the proxy's readme

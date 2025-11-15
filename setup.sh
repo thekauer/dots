@@ -192,6 +192,21 @@ setup_aliases() {
   print_success "Aliases added to ~/.zshrc"
 }
 
+setup_ghostty_config() {
+  print_info "Setting up Ghostty configuration..."
+
+  local GHOSTTY_DIR="$HOME/Library/Application Support/com.mitchellh.ghostty"
+  local SOURCE="$INSTALL_DIR/config"
+  local TARGET="$GHOSTTY_DIR/config"
+
+  mkdir -p "$GHOSTTY_DIR"
+
+  rm -f "$TARGET"
+  ln -s "$SOURCE" "$TARGET"
+
+  print_success "Linked Ghostty config → $TARGET"
+}
+
 cleanup_backup_dir() {
   if [ -z "$(ls -A "$BACKUP_DIR")" ]; then
     rmdir "$BACKUP_DIR"
@@ -214,6 +229,7 @@ main() {
   link_configs
   link_dotfiles
   setup_neovim_config
+  setup_ghostty_config
   setup_tmux_plugins
   setup_aliases
   cleanup_backup_dir
