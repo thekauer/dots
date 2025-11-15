@@ -136,6 +136,26 @@ else
 fi
 print_success "Neovim configuration ready at $NVIM_DIR"
 
+# 🔧 Install or update Tmux Plugin Manager (TPM)
+print_info "Setting up tmux plugin manager (TPM)..."
+TPM_DIR="$HOME/.tmux/plugins/tpm"
+if [ -d "$TPM_DIR" ]; then
+  print_info "TPM already installed, pulling latest changes..."
+  cd "$TPM_DIR"
+  git pull
+else
+  print_info "Cloning TPM..."
+  git clone https://github.com/tmux-plugins/tpm "$TPM_DIR"
+fi
+
+if [ -f "$HOME/.tmux.conf" ]; then
+  print_info "Installing tmux plugins..."
+  "$TPM_DIR/bin/install_plugins" >/dev/null 2>&1 || true
+  print_success "Tmux plugins installed"
+else
+  print_info "No .tmux.conf found, skipping plugin installation"
+fi
+
 print_success "Dotfiles installation complete!"
 print_info "Please restart your terminal or run 'source ~/.zshrc' (or your shell config)"
 
