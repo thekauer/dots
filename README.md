@@ -1,5 +1,6 @@
 - [ ] add aliases from zsh
 - [ ] add linking to .config
-- [ ] setup file
-- [ ] dockerfile for testing
+- [ ] manual linking
+- [ ] setup tmux plugin manager needs git clone
+- [ ] setup powerlevel 10k I need to add my config in here and also add it via brew, add step at the very end to run `p10k configure`
 - [ ] check real config dir for what is missing

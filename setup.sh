@@ -93,28 +93,27 @@ create_symlink() {
   print_success "Linked $(basename $source)"
 }
 
-# Symlink all config directories/files
+# Symlink configuration files and directories
 print_info "Creating symlinks..."
 
-# Find all items in the dotfiles directory (excluding .git, README, etc.)
-cd "$INSTALL_DIR"
-for item in *; do
-  # Skip hidden files, README, and other non-config files
-  if [[ "$item" == "."* ]] || [[ "$item" == "README"* ]] || [[ "$item" == "setup.sh" ]] || [[ "$item" == "LICENSE"* ]] || [[ "$item" == "Brewfile"* ]]; then
-    continue
-  fi
-
+# Configurations for ~/.config
+print_info "Linking configurations to $CONFIG_DIR"
+for item in config iterm_config.json raycast raycast_plugins; do
   source_path="$INSTALL_DIR/$item"
-  target_path="$CONFIG_DIR/$item"
-
-  create_symlink "$source_path" "$target_path"
+  if [ -e "$source_path" ]; then
+    create_symlink "$source_path" "$CONFIG_DIR/$item"
+  fi
 done
 
-# Source shell config if present
-for shell_config in .zshrc .bashrc .bash_profile; do
-  if [ -f "$INSTALL_DIR/$shell_config" ]; then
-    target="$HOME/$shell_config"
-    create_symlink "$INSTALL_DIR/$shell_config" "$target"
+# Dotfiles for ~
+print_info "Linking dotfiles to $HOME"
+for item in .tmux.conf .p10k.zsh; do
+  source_path="$INSTALL_DIR/$item"
+  if [ -e "$source_path" ]; then
+    if [[ "$item" == ".p10k.zsh" ]]; then
+      print_info "Linking Powerlevel10k configuration..."
+    fi
+    create_symlink "$source_path" "$HOME/$item"
   fi
 done
 
