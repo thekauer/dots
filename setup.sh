@@ -1,167 +1,170 @@
 #!/bin/bash
-
 set -e
 
-# Colors for output
+# ────────────────────────────────────────────────
+# 🎨 Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Configuration
+# ────────────────────────────────────────────────
+# ⚙️ Config
 REPO_URL="https://github.com/thekauer/dots.git"
 NVIM_REPO_URL="https://github.com/thekauer/nvim.git"
 INSTALL_DIR="$HOME/.dotfiles"
 CONFIG_DIR="$HOME/.config"
+BACKUP_DIR="$HOME/.config_backup_$(date +%Y%m%d_%H%M%S)"
 
-# Helper functions
-print_success() {
-  echo -e "${GREEN}✓${NC} $1"
-}
+# ────────────────────────────────────────────────
+# 🪶 Helper functions
+print_success() { echo -e "${GREEN}✓${NC} $1"; }
+print_error() { echo -e "${RED}✗${NC} $1"; }
+print_info() { echo -e "${YELLOW}→${NC} $1"; }
 
-print_error() {
-  echo -e "${RED}✗${NC} $1"
-}
-
-print_info() {
-  echo -e "${YELLOW}→${NC} $1"
-}
-
-# Check if running on macOS
-if [[ "$OSTYPE" != "darwin"* ]]; then
-  print_error "This script is designed for macOS only"
-  exit 1
-fi
-
-print_info "Starting dotfiles installation..."
-
-[ ! -f ~/.zshrc ] && touch ~/.zshrc
-
-# Install Homebrew if not present
-if ! command -v brew &>/dev/null; then
-  print_info "Installing Homebrew..."
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  eval "$(/opt/homebrew/bin/brew shellenv)"
-  print_success "Homebrew installed"
-else
-  print_success "Homebrew already installed"
-fi
-
-# Clone or update dotfiles repository
-if [ -d "$INSTALL_DIR" ]; then
-  print_info "Dotfiles directory exists, pulling latest changes..."
-  cd "$INSTALL_DIR"
-  git pull
-else
-  print_info "Cloning dotfiles repository..."
-  git clone "$REPO_URL" "$INSTALL_DIR"
-fi
-print_success "Repository ready at $INSTALL_DIR"
-
-# Install packages from Brewfile first (before linking configs)
-if [ -f "$INSTALL_DIR/Brewfile" ]; then
-  print_info "Installing packages from Brewfile..."
-  # prevent non zero brew exit code from stopping the entire script
-  set +e
-  brew bundle --file="$INSTALL_DIR/Brewfile"
-  set -e
-  print_success "Packages installed"
-fi
-
-echo "source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme" >>~/.zshrc
-
-# Create .config directory if it doesn't exist
-mkdir -p "$CONFIG_DIR"
-
-# Backup existing configs
-backup_dir="$HOME/.config_backup_$(date +%Y%m%d_%H%M%S)"
-print_info "Backing up existing configs to $backup_dir..."
-mkdir -p "$backup_dir"
-
-# Function to create symlinks
 create_symlink() {
   local source="$1"
   local target="$2"
 
-  # If target exists and is not a symlink, back it up
   if [ -e "$target" ] && [ ! -L "$target" ]; then
     print_info "Backing up existing $target"
-    mv "$target" "$backup_dir/"
+    mv "$target" "$BACKUP_DIR/"
   fi
 
-  # Remove existing symlink if present
-  if [ -L "$target" ]; then
-    rm "$target"
-  fi
-
-  # Create symlink
+  [ -L "$target" ] && rm "$target"
   ln -s "$source" "$target"
-  print_success "Linked $(basename $source)"
+  print_success "Linked $(basename "$source")"
 }
 
-# Symlink configuration files and directories
-print_info "Creating symlinks..."
-
-# Configurations for ~/.config
-print_info "Linking configurations to $CONFIG_DIR"
-for item in config iterm_config.json raycast raycast_plugins; do
-  source_path="$INSTALL_DIR/$item"
-  if [ -e "$source_path" ]; then
-    create_symlink "$source_path" "$CONFIG_DIR/$item"
+# ────────────────────────────────────────────────
+# 🧩 Step functions
+check_os() {
+  if [[ "$OSTYPE" != "darwin"* ]]; then
+    print_error "This script is designed for macOS only"
+    exit 1
   fi
-done
+}
 
-# Dotfiles for ~
-print_info "Linking dotfiles to $HOME"
-for item in .tmux.conf .p10k.zsh; do
-  source_path="$INSTALL_DIR/$item"
-  if [ -e "$source_path" ]; then
-    if [[ "$item" == ".p10k.zsh" ]]; then
-      print_info "Linking Powerlevel10k configuration..."
+install_homebrew() {
+  if ! command -v brew &>/dev/null; then
+    print_info "Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+    print_success "Homebrew installed"
+  else
+    print_success "Homebrew already installed"
+  fi
+}
+
+clone_or_update_repo() {
+  local url="$1"
+  local dir="$2"
+  local name="$3"
+
+  if [ -d "$dir" ]; then
+    print_info "$name directory exists, pulling latest changes..."
+    cd "$dir" && git pull
+  else
+    print_info "Cloning $name repository..."
+    git clone "$url" "$dir"
+  fi
+  print_success "$name ready at $dir"
+}
+
+install_brewfile() {
+  if [ -f "$INSTALL_DIR/Brewfile" ]; then
+    print_info "Installing packages from Brewfile..."
+    set +e
+    brew bundle --file="$INSTALL_DIR/Brewfile"
+    set -e
+    print_success "Packages installed"
+  fi
+}
+
+setup_zsh() {
+  [ ! -f ~/.zshrc ] && touch ~/.zshrc
+  if ! grep -q "powerlevel10k.zsh-theme" ~/.zshrc; then
+    echo "source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme" >>~/.zshrc
+    print_success "Added Powerlevel10k theme to ~/.zshrc"
+  fi
+}
+
+backup_and_prepare_config_dir() {
+  mkdir -p "$CONFIG_DIR"
+  mkdir -p "$BACKUP_DIR"
+  print_info "Backing up existing configs to $BACKUP_DIR..."
+}
+
+link_configs() {
+  print_info "Linking configurations to $CONFIG_DIR"
+  for item in config iterm_config.json raycast raycast_plugins; do
+    local src="$INSTALL_DIR/$item"
+    [ -e "$src" ] && create_symlink "$src" "$CONFIG_DIR/$item"
+  done
+}
+
+link_dotfiles() {
+  print_info "Linking dotfiles to $HOME"
+  for item in .tmux.conf .p10k.zsh; do
+    local src="$INSTALL_DIR/$item"
+    if [ -e "$src" ]; then
+      [[ "$item" == ".p10k.zsh" ]] && print_info "Linking Powerlevel10k configuration..."
+      create_symlink "$src" "$HOME/$item"
     fi
-    create_symlink "$source_path" "$HOME/$item"
+  done
+}
+
+setup_neovim_config() {
+  print_info "Setting up Neovim configuration..."
+  clone_or_update_repo "$NVIM_REPO_URL" "$CONFIG_DIR/nvim" "Neovim config"
+}
+
+setup_tmux_plugins() {
+  print_info "Setting up tmux plugin manager (TPM)..."
+  local tpm_dir="$HOME/.tmux/plugins/tpm"
+  if [ -d "$tpm_dir" ]; then
+    print_info "TPM already installed, pulling latest changes..."
+    cd "$tpm_dir" && git pull
+  else
+    print_info "Cloning TPM..."
+    git clone https://github.com/tmux-plugins/tpm "$tpm_dir"
   fi
-done
 
-# 🧠 Install or update Neovim config
-print_info "Setting up Neovim configuration..."
-NVIM_DIR="$CONFIG_DIR/nvim"
-if [ -d "$NVIM_DIR" ]; then
-  print_info "Neovim config exists, pulling latest changes..."
-  cd "$NVIM_DIR"
-  git pull
-else
-  print_info "Cloning Neovim configuration..."
-  git clone "$NVIM_REPO_URL" "$NVIM_DIR"
-fi
-print_success "Neovim configuration ready at $NVIM_DIR"
+  if [ -f "$HOME/.tmux.conf" ]; then
+    print_info "Installing tmux plugins..."
+    "$tpm_dir/bin/install_plugins" >/dev/null 2>&1 || true
+    print_success "Tmux plugins installed"
+  else
+    print_info "No .tmux.conf found, skipping plugin installation"
+  fi
+}
 
-# 🔧 Install or update Tmux Plugin Manager (TPM)
-print_info "Setting up tmux plugin manager (TPM)..."
-TPM_DIR="$HOME/.tmux/plugins/tpm"
-if [ -d "$TPM_DIR" ]; then
-  print_info "TPM already installed, pulling latest changes..."
-  cd "$TPM_DIR"
-  git pull
-else
-  print_info "Cloning TPM..."
-  git clone https://github.com/tmux-plugins/tpm "$TPM_DIR"
-fi
+cleanup_backup_dir() {
+  if [ -z "$(ls -A "$BACKUP_DIR")" ]; then
+    rmdir "$BACKUP_DIR"
+  else
+    print_info "Backups saved to: $BACKUP_DIR"
+  fi
+}
 
-if [ -f "$HOME/.tmux.conf" ]; then
-  print_info "Installing tmux plugins..."
-  "$TPM_DIR/bin/install_plugins" >/dev/null 2>&1 || true
-  print_success "Tmux plugins installed"
-else
-  print_info "No .tmux.conf found, skipping plugin installation"
-fi
+# ────────────────────────────────────────────────
+# 🧠 Main setup flow
+main() {
+  print_info "Starting dotfiles installation..."
+  check_os
+  install_homebrew
+  clone_or_update_repo "$REPO_URL" "$INSTALL_DIR" "Dotfiles"
+  install_brewfile
+  setup_zsh
+  backup_and_prepare_config_dir
+  link_configs
+  link_dotfiles
+  setup_neovim_config
+  setup_tmux_plugins
+  cleanup_backup_dir
 
-print_success "Dotfiles installation complete!"
-print_info "Please restart your terminal or run 'source ~/.zshrc' (or your shell config)"
+  print_success "Dotfiles installation complete!"
+  print_info "Please restart your terminal or run 'source ~/.zshrc'"
+}
 
-# Check if backup directory is empty and remove if so
-if [ -z "$(ls -A $backup_dir)" ]; then
-  rmdir "$backup_dir"
-else
-  print_info "Backups saved to: $backup_dir"
-fi
+main "$@"
