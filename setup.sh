@@ -207,6 +207,25 @@ setup_ghostty_config() {
   print_success "Linked Ghostty config → $TARGET"
 }
 
+setup_macos_preferences() {
+  print_info "Applying macOS system preferences..."
+
+  # Disable double-space inserts period
+  defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false
+
+  # Optional: other useful developer defaults (safe, common tweaks)
+  defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false # Disable smart quotes
+  defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false  # Disable smart dashes
+  defaults write NSGlobalDomain KeyRepeat -int 1                                # Faster key repeat
+  defaults write NSGlobalDomain InitialKeyRepeat -int 15                        # Quicker initial delay
+  defaults write NSGlobalDomain AppleShowAllExtensions -bool true               # Always show file extensions
+
+  # Apply changes
+  killall SystemUIServer >/dev/null 2>&1 || true
+
+  print_success "macOS preferences applied"
+}
+
 cleanup_backup_dir() {
   if [ -z "$(ls -A "$BACKUP_DIR")" ]; then
     rmdir "$BACKUP_DIR"
@@ -232,6 +251,7 @@ main() {
   setup_ghostty_config
   setup_tmux_plugins
   setup_aliases
+  setup_macos_preferences
   cleanup_backup_dir
 
   print_success "Dotfiles installation complete!"
