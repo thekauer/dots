@@ -2,6 +2,7 @@
 # Usage: brew bundle --file=./Brewfile
 
 # Brew formulas
+brew "bash"
 brew "colima"
 brew "docker"
 brew "fzf"
@@ -29,6 +30,7 @@ cask "hyperkey"
 cask "orbstack"
 cask "raycast"
 cask "slack"
+cask "stats"
 
 # Fonts
 cask "font-fira-code-nerd-font"

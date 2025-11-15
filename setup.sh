@@ -139,6 +139,59 @@ setup_tmux_plugins() {
   fi
 }
 
+setup_modern_bash() {
+  print_info "Installing latest Bash via Homebrew..."
+
+  local HOMEBREW_BASH_PATH=""
+  if [ -f "/opt/homebrew/bin/bash" ]; then
+    HOMEBREW_BASH_PATH="/opt/homebrew/bin/bash" # Apple Silicon
+  elif [ -f "/usr/local/bin/bash" ]; then
+    HOMEBREW_BASH_PATH="/usr/local/bin/bash" # Intel Macs
+  else
+    print_error "Could not locate Homebrew Bash!"
+    return
+  fi
+
+  # Add to /etc/shells if missing
+  if ! grep -q "$HOMEBREW_BASH_PATH" /etc/shells; then
+    print_info "Adding $HOMEBREW_BASH_PATH to /etc/shells"
+    echo "$HOMEBREW_BASH_PATH" | sudo tee -a /etc/shells >/dev/null
+  fi
+
+  # Update PATH in .zshrc if not already there
+  if ! grep -q "homebrew/bin" ~/.zshrc; then
+    print_info "Updating PATH in ~/.zshrc"
+    echo 'export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"' >>~/.zshrc
+  fi
+
+  print_success "Bash setup complete! Using $HOMEBREW_BASH_PATH"
+}
+
+setup_aliases() {
+  print_info "Adding aliases to ~/.zshrc..."
+
+  # Ensure ~/.zshrc exists
+  [ ! -f ~/.zshrc ] && touch ~/.zshrc
+
+  # Helper function to safely add an alias if missing
+  add_alias() {
+    local name="$1"
+    local command="$2"
+    if ! grep -q "alias $name=" ~/.zshrc; then
+      echo "alias $name=\"$command\"" >>~/.zshrc
+      print_success "Added alias $name → $command"
+    else
+      print_info "Alias $name already exists, skipping"
+    fi
+  }
+
+  add_alias v "nvim"
+  add_alias ss "stty sane"
+  add_alias t "tmux a -t "
+
+  print_success "Aliases added to ~/.zshrc"
+}
+
 cleanup_backup_dir() {
   if [ -z "$(ls -A "$BACKUP_DIR")" ]; then
     rmdir "$BACKUP_DIR"
@@ -155,12 +208,14 @@ main() {
   install_homebrew
   clone_or_update_repo "$REPO_URL" "$INSTALL_DIR" "Dotfiles"
   install_brewfile
+  setup_modern_bash
   setup_zsh
   backup_and_prepare_config_dir
   link_configs
   link_dotfiles
   setup_neovim_config
   setup_tmux_plugins
+  setup_aliases
   cleanup_backup_dir
 
   print_success "Dotfiles installation complete!"
