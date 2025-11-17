@@ -5,6 +5,7 @@
 brew "bash"
 brew "colima"
 brew "docker"
+brew "fd"
 brew "fzf"
 brew "gnu-sed"
 brew "go"
@@ -17,6 +18,7 @@ brew "powerlevel10k"
 brew "ripgrep"
 brew "ripgrep"
 brew "tmux"
+brew "tree-sitter-cli"
 
 # GUI apps (casks)
 cask "alt-tab"

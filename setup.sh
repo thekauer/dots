@@ -216,8 +216,6 @@ setup_macos_preferences() {
   # Optional: other useful developer defaults (safe, common tweaks)
   defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false # Disable smart quotes
   defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false  # Disable smart dashes
-  defaults write NSGlobalDomain KeyRepeat -int 1                                # Faster key repeat
-  defaults write NSGlobalDomain InitialKeyRepeat -int 15                        # Quicker initial delay
   defaults write NSGlobalDomain AppleShowAllExtensions -bool true               # Always show file extensions
 
   # Apply changes
