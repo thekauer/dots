@@ -217,6 +217,7 @@ setup_macos_preferences() {
   defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false # Disable smart quotes
   defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false  # Disable smart dashes
   defaults write NSGlobalDomain AppleShowAllExtensions -bool true               # Always show file extensions
+  defaults write com.apple.menuextra.clock ShowSeconds -bool true               # Show seconds in the menu bar clock
 
   # Apply changes
   killall SystemUIServer >/dev/null 2>&1 || true
