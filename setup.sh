@@ -218,6 +218,7 @@ setup_macos_preferences() {
   defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false  # Disable smart dashes
   defaults write NSGlobalDomain AppleShowAllExtensions -bool true               # Always show file extensions
   defaults write com.apple.menuextra.clock ShowSeconds -bool true               # Show seconds in the menu bar clock
+  defaults write com.apple.controlcenter "NSStatusItem VisibleCC Sound" -int 1  # Always show sound output device
 
   # Apply changes
   killall SystemUIServer >/dev/null 2>&1 || true
