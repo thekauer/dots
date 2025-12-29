@@ -208,6 +208,21 @@ setup_ghostty_config() {
   print_success "Linked Ghostty config → $TARGET"
 }
 
+setup_workmux_config() {
+  print_info "Setting up workmux configuration..."
+
+  local WORKMUX_DIR="$HOME/.config/workmux"
+  local SOURCE="$INSTALL_DIR/workmux.config.yaml"
+  local TARGET="$WORKMUX_DIR/config.yaml"
+
+  mkdir -p "$WORKMUX_DIR"
+
+  rm -f "$TARGET"
+  ln -s "$SOURCE" "$TARGET"
+
+  print_success "Linked workmux config → $TARGET"
+}
+
 setup_macos_preferences() {
   print_info "Applying macOS system preferences..."
 
@@ -250,6 +265,7 @@ main() {
   link_dotfiles
   setup_neovim_config
   setup_ghostty_config
+  setup_workmux_config
   setup_tmux_plugins
   setup_aliases
   setup_macos_preferences
