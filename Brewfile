@@ -1,6 +1,7 @@
 # Brewfile generated from your list
 # Usage: brew bundle --file=./Brewfile
 
+tap "raine/workmux"
 # Brew formulas
 brew "bash"
 brew "colima"
@@ -15,17 +16,20 @@ brew "mpv"
 brew "neovim"
 brew "nvm"
 brew "powerlevel10k"
+brew "raine/workmux/workmux"
 brew "ripgrep"
 brew "ripgrep"
 brew "tmux"
 brew "tree-sitter-cli"
 
 # GUI apps (casks)
+cask "alcove"
 cask "alt-tab"
 cask "arc"
 cask "bitwarden"
 cask "clop"
 cask "ghostty"
+cask "google-chrome"
 cask "hammerspoon"
 cask "hiddenbar"
 cask "hyperkey"
