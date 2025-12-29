@@ -188,6 +188,7 @@ setup_aliases() {
   add_alias v "nvim"
   add_alias ss "stty sane"
   add_alias t "tmux a -t "
+  add_alias wm "workmux"
 
   print_success "Aliases added to ~/.zshrc"
 }
