@@ -193,6 +193,24 @@ setup_aliases() {
   print_success "Aliases added to ~/.zshrc"
 }
 
+setup_nvm() {
+  echo "🌳 Setting up NVM in ~/.zshrc…"
+
+  NVM_LINES='
+export NVM_DIR="$HOME/.nvm"
+[ -s "$(brew --prefix nvm)/nvm.sh" ] && \. "$(brew --prefix nvm)/nvm.sh"
+[ -s "$(brew --prefix nvm)/etc/bash_completion.d/nvm" ] && \. "$(brew --prefix nvm)/etc/bash_completion.d/nvm"
+'
+
+  # Append only if not already present
+  if ! grep -q 'export NVM_DIR="$HOME/.nvm"' ~/.zshrc; then
+    echo "$NVM_LINES" >>~/.zshrc
+    echo "✅ NVM added to ~/.zshrc"
+  else
+    echo "ℹ️ NVM config already present in ~/.zshrc"
+  fi
+}
+
 setup_ghostty_config() {
   print_info "Setting up Ghostty configuration..."
 
@@ -267,6 +285,7 @@ main() {
   setup_ghostty_config
   setup_workmux_config
   setup_tmux_plugins
+  setup_nvm
   setup_aliases
   setup_macos_preferences
   cleanup_backup_dir

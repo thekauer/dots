@@ -1,5 +1,6 @@
 macos-titlebar-style = hidden
-background-opacity = 0.5
+background = #000000
+background-opacity = 0.8
 background-blur-radius = 40
 font-size = 16
 font-family = FiraCode Nerd Font Mono
